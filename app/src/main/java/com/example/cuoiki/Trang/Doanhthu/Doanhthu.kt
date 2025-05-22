@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cuoiki.Viewmodel.HDTTviewmodel
+import com.example.cuoiki.Viewmodel.Nhanvienviewmodel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,6 +36,18 @@ fun Doanhthu(navController: NavController) {
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
         isLenient = false // Không cho phép ngày không hợp lệ
     }
+    val viewmodel1 : Nhanvienviewmodel=viewModel()
+
+
+    LaunchedEffect(Unit) {
+        if (!viewmodel1.isAdmin()) {
+            Toast.makeText(context, "Chỉ admin mới truy cập được!", Toast.LENGTH_SHORT).show()
+            navController.navigate("Chonban") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+    }
+
 
     Scaffold(
         bottomBar = {

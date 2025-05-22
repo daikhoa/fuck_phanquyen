@@ -4,112 +4,95 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.cuoiki.Viewmodel.LoginState
 import com.example.cuoiki.Viewmodel.Nhanvienviewmodel
 
 @Composable
 fun dangnhap(navController: NavController) {
+    val viewModel: Nhanvienviewmodel = viewModel()
+    val loginState by viewModel.loginState.collectAsStateWithLifecycle()
     var taikhoan by remember { mutableStateOf("") }
     var matkhau by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-    val viewmodel: Nhanvienviewmodel = viewModel()
-    val nhanvien by viewmodel.nhanvien.collectAsStateWithLifecycle(initialValue = emptyList())
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Đăng Nhập", style = MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.height(16.dp))
 
+        OutlinedTextField(
+            value = taikhoan,
+            onValueChange = { taikhoan = it },
+            label = { Text("Tài khoản") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = errorMessage.isNotEmpty()
+        )
+        Spacer(Modifier.height(8.dp))
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        content = { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        OutlinedTextField(
+            value = matkhau,
+            onValueChange = { matkhau = it },
+            label = { Text("Mật khẩu") },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            modifier = Modifier.fillMaxWidth(),
+            isError = errorMessage.isNotEmpty()
+        )
 
-                Text(
-                    text = "Đăng nhập",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontSize = 32.sp,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                )
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+        Spacer(Modifier.height(16.dp))
 
-
-                OutlinedTextField(
-                    value = taikhoan,
-                    onValueChange = { taikhoan = it },
-                    label = { Text("Tài khoản") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-                )
-
-
-                OutlinedTextField(
-                    value = matkhau,
-                    onValueChange = { matkhau = it },
-                    label = { Text("Mật khẩu") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                )
-
-                // Thông báo lỗi
-                if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        textAlign = TextAlign.Center
-                    )
+        Button(
+            onClick = {
+                if (taikhoan.isNotBlank() && matkhau.isNotBlank()) {
+                    viewModel.login(taikhoan, matkhau)
+                } else {
+                    errorMessage = "Nhập đầy đủ thông tin"
                 }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = loginState !is LoginState.Loading
+        ) {
+            Text("Đăng nhập")
+        }
 
-                // Nút Đăng nhập
-                Button(
-                    onClick = {
-                        if (taikhoan.isBlank() || matkhau.isBlank()) {
-                            errorMessage = "Vui lòng nhập đầy đủ thông tin"
+        LaunchedEffect(loginState) {
+            when (loginState) {
+                is LoginState.Success -> {
+                    if (viewModel.isAdmin()) {
+                        navController.navigate("menu") {
+                            popUpTo("dangnhap") { inclusive = true }
                         }
-                        else{
-                            var check = nhanvien.find { it.taikhoan == taikhoan && it.mk==matkhau }
-                            if (check == null){
-                                errorMessage = "mời bạn đăng nhập lại"
-                            }
-                            else{
-                                navController.navigate("chonban")
-                            }
-
+                    } else {
+                        navController.navigate("chonban") {
+                            popUpTo("dangnhap") { inclusive = true }
                         }
-                              },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text("Đăng nhập", color = MaterialTheme.colorScheme.onPrimary)
+                    }
                 }
+                is LoginState.Error -> {
+                    errorMessage = (loginState as LoginState.Error).message
+                }
+                else -> {}
             }
         }
-    )
+    }
 }
-

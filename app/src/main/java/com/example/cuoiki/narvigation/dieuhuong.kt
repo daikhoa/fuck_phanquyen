@@ -1,6 +1,9 @@
 package com.example.cuoiki.narvigation
 import android.R
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,7 +16,7 @@ import com.example.cuoiki.Trang.Doanhthu.*
 import com.example.cuoiki.Trang.Nhanvien.*
 import com.example.cuoiki.Trang.Sanpham.*
 import com.example.cuoiki.Trang.*
-
+import com.example.cuoiki.Viewmodel.Nhanvienviewmodel
 
 
 @Composable
@@ -21,7 +24,7 @@ fun Dieuhuong() {
     val navController = rememberNavController()
 
 
-    NavHost(navController, startDestination = "Danhsachban") {
+    NavHost(navController, startDestination = "dangnhap") {
 
         composable("dangnhap") { dangnhap(navController)  }
 
