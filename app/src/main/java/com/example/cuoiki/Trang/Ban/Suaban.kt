@@ -1,5 +1,6 @@
 package com.example.cuoiki.Trang.Ban
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -7,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -15,12 +17,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cuoiki.Csdl.Ban
 import com.example.cuoiki.Viewmodel.Banviewmodel
+import com.example.cuoiki.Viewmodel.Nhanvienviewmodel
 
 @Composable
 fun Suaban(navController: NavController, id: Int) {
     val viewmodel : Banviewmodel = viewModel()
     val ban by viewmodel.ban.collectAsStateWithLifecycle(initialValue = emptyList())
     val Ban= ban.find { it.idban == id }
+    val viewmodel1 : Nhanvienviewmodel= viewModel()
 
     if (Ban == null) {
         Text("Liên hệ không tồn tại!", fontSize = 20.sp, color = MaterialTheme.colorScheme.error)
@@ -28,6 +32,16 @@ fun Suaban(navController: NavController, id: Int) {
     }
 
     var soban by remember { mutableStateOf(Ban.soban.toString()) }
+
+    val context=  LocalContext.current
+    LaunchedEffect(Unit) {
+        if (!viewmodel1.isAdmin()) {
+            Toast.makeText(context, "Chỉ admin mới truy cập được!", Toast.LENGTH_SHORT).show()
+            navController.navigate("Chonban") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+    }
         Column(
             modifier = Modifier
                 .fillMaxSize()

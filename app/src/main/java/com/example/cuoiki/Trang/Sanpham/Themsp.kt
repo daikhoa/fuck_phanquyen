@@ -2,6 +2,7 @@ package com.example.cuoiki.Trang.Sanpham
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -23,6 +24,7 @@ import com.example.cuoiki.Csdl.Sanpham
 import com.example.cuoiki.Viewmodel.Sanphamviewmodel
 import com.example.cuoiki.Viewmodel.Danhmucviewmodel
 import com.example.cuoiki.Csdl.Danhmuc
+import com.example.cuoiki.Viewmodel.Nhanvienviewmodel
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -40,6 +42,16 @@ fun Themsp(navController: NavController) {
     var expanded by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val viewmodel2 : Nhanvienviewmodel=viewModel()
+
+    LaunchedEffect(Unit) {
+        if (!viewmodel2.isAdmin()) {
+            Toast.makeText(context, "Chỉ admin mới truy cập được!", Toast.LENGTH_SHORT).show()
+            navController.navigate("Chonban") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()

@@ -35,12 +35,9 @@ fun Suanv(navController: NavController, id: Int) {
 
     val context = LocalContext.current
 
+    val viewmodel1 : Nhanvienviewmodel=viewModel()
     LaunchedEffect(Unit) {
-        if (!viewModel.isLoggedIn()) {
-            navController.navigate("dangnhap") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-            }
-        } else if (!viewModel.isAdmin()) {
+        if (!viewmodel1.isAdmin()) {
             Toast.makeText(context, "Chỉ admin mới truy cập được!", Toast.LENGTH_SHORT).show()
             navController.navigate("Chonban") {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }

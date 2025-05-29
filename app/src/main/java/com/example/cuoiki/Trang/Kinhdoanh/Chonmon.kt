@@ -3,34 +3,32 @@
 package com.example.cuoiki.Trang.Kinhdoanh
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import com.example.cuoiki.R // Giả định resource cho placeholder
+import coil.compose.rememberAsyncImagePainter // Import Coil
+import com.example.cuoiki.R
 import com.example.cuoiki.Viewmodel.Donhangviewmodel
 import com.example.cuoiki.Viewmodel.Sanphamviewmodel
 import com.example.cuoiki.Csdl.Donhang
-@Composable
-fun Chonmon(navController: NavController, idban : Int) {
+import com.example.cuoiki.Csdl.Sanpham
 
+@Composable
+fun Chonmon(navController: NavController, idban: Int) {
     val sanphamViewmodel: Sanphamviewmodel = viewModel()
     val donhangViewmodel: Donhangviewmodel = viewModel()
     val sanphamList by sanphamViewmodel.sanpham.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -74,9 +72,13 @@ fun Chonmon(navController: NavController, idban : Int) {
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Hình ảnh sản phẩm
+                        // Hiển thị ảnh từ URL
                         Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_background), // Thay bằng Coil nếu có URL
+                            painter = rememberAsyncImagePainter(
+                                model = sanpham.hinhanh,
+                                placeholder = painterResource(R.drawable.ic_launcher_background),
+                                error = painterResource(R.drawable.ic_launcher_background)
+                            ),
                             contentDescription = sanpham.tensp,
                             modifier = Modifier
                                 .size(80.dp)
@@ -96,7 +98,6 @@ fun Chonmon(navController: NavController, idban : Int) {
                                 text = "Giá: ${sanpham.giasp} VNĐ",
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            // Chọn số lượng
                             OutlinedTextField(
                                 value = soluong,
                                 onValueChange = { if (it.all { char -> char.isDigit() }) soluong = it },
@@ -107,19 +108,18 @@ fun Chonmon(navController: NavController, idban : Int) {
                                     .padding(top = 8.dp)
                             )
                         }
-                        // Nút thêm vào hóa đơn
                         Button(
                             onClick = {
                                 val sl = soluong.toIntOrNull() ?: 1
                                 donhangViewmodel.them(
                                     Donhang(
                                         tensp = sanpham.tensp,
-                                        giasp = sanpham.giasp.toDouble(),
+                                        giasp = sanpham.giasp,
                                         soluong = sl,
                                         idban = idban
                                     )
                                 )
-                                navController.navigate("Donhang/$idban") // Quay lại Donhang sau khi thêm
+                                navController.navigate("Donhang/$idban")
                             },
                             modifier = Modifier.padding(start = 8.dp)
                         ) {
@@ -130,6 +130,4 @@ fun Chonmon(navController: NavController, idban : Int) {
             }
         }
     }
-
-
 }

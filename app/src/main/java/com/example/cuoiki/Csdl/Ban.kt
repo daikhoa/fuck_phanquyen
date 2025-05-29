@@ -1,9 +1,7 @@
 package com.example.cuoiki.Csdl
 
-import android.content.Context
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
